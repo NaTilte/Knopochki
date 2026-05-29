@@ -294,7 +294,10 @@ lua_thread.create(function()
 end)
 
 
-
+sampRegisterChatCommand('mm',function ()
+    sampAddChatMessage('много хош',-1)
+    return 0;
+end)
 
 function cfg_save()
     ini.cfg.pos_x1 = window_pos1.x
