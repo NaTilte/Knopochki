@@ -214,43 +214,60 @@ function main()
     wait(-1)
 end
 
-
+function downloadFileFromUrlToPath(url, path)
+    if IS_MOBILE then
+        -- Используем встроенную функцию Мобайла
+        downloadFile(url, path)
+    else
+        -- Если скрипт запустят на ПК, используем стандартный асинхронный URLDownloader
+        local url_downloader = require('ffi').cast('void*(*)(void*, const char*, const char*, int, void*)', 0x5D0000) -- условный пример для мунлоадера
+        -- Но проще и надежнее на ПК сделать обычный асинхронный вызов через LuaSocket/запрос,
+        -- либо использовать универсальный вариант, который уже встроен в ваш лаунчер.
+        -- Для совместимости на ПК можно подключить URLDownloadToFile:
+        local ffi = require("ffi")
+        ffi.cdef[[
+            int URLDownloadToFileA(void*, const char*, const char*, int, void*);
+        ]]
+        local urlmon = ffi.load("Urlmon")
+        urlmon.URLDownloadToFileA(nil, url, path, 0, nil)
+    end
+end
 
 
 function checkUpdates()
     -- Создаем отдельный поток, чтобы игра не зависала при сетевом запросе
     lua_thread.create(function()
         print("[Update] Проверка обновлений...")
-        
+
         -- Ссылка на ваш update.json на GitHub (замени на свою Raw-ссылку!)
-        local json_url = "https://github.com/NaTilte/Knopochki/raw/refs/heads/main/update.json"
-        
+        local json_url = "https://raw.githubusercontent.com/NaTilte/Knopochki/main/update.json"
+
         -- Выполняем асинхронный запрос через requests
         if requests_no_errors then
             local response = requests.get(json_url)
             if response and response.status_code == 200 then
                 -- Декодируем полученный JSON
                 local ok, updateInfo = pcall(decodeJson, response.text)
-                
+
                 if ok and updateInfo then
                     local new_version = updateInfo.current_version
                     local download_url = updateInfo.update_url
                     local current_version = thisScript().version
-                    
+
                     -- Если версия на GitHub отличается от текущей
                     if new_version ~= current_version then
                         sampAddChatMessage('[Knopochki] {ffffff}Найдено обновление! Новая версия: {009EFF}'..new_version, 40703)
                         sampAddChatMessage('[Knopochki] {ffffff}Начинаю скачивание...', 40703)
-                        
+
                         -- Вызываем скачивание (используем уже готовую у тебя функцию)
                         -- Скачиваем во временное имя, чтобы лаунчер заменил файл при перезапуске, 
                         -- либо сразу в имя текущего скрипта:
                         local script_path = thisScript().path
-                        
+
                         downloadFileFromUrlToPath(download_url, script_path)
-                        
+
                         sampAddChatMessage('[Knopochki] {ffffff}Скрипт успешно обновлен! Перезагрузите Lua.', 40703)
-                        
+
                         -- Если это ПК, можно перезагрузить автоматом
                         if not IS_MOBILE then
                             thisScript():reload()
