@@ -1,6 +1,6 @@
 script_author("Chipay")
 script_name("Knopochki")
-script_version('beta 1.2')
+script_version('beta 1.1')
 
 require('moonloader')
 local ev = require 'lib.samp.events'
@@ -10,6 +10,7 @@ encoding.default = "CP1251"
 local u8 = encoding.UTF8
 local new = imgui.new
 local inicfg = require "inicfg"
+local IS_MOBILE = MONET_VERSION ~= nil
 
 local requests_no_errors, requests = pcall(require, 'requests')
 
@@ -292,13 +293,6 @@ lua_thread.create(function()
     checkUpdates()
 end)
 
-sampRegisterChatCommand('mm',function ()
-    sampAddChatMessage('много хош',-1)
-    return 0;
-end)
-
-
-
 
 
 
@@ -406,11 +400,18 @@ end, function()
         btw = (wsi2.x - 15) / button_cols
         bth2 = (wsi2.y - 35) / button_rows
 
+        -- for i = 1, coop do
+        --     if i % button_cols ~= 1 then imgui.SameLine() end
+        --     local btn_index = i + 4
+        --     if imgui.Button(u8(bindcfg.text["kn" .. btn_index]), imgui.ImVec2(btw, bth2)) then
+        --         sampProcessChatInput(bindcfg.cmd["k" .. btn_index])
+        --     end
+        -- end
+
         for i = 1, coop do
             if i % button_cols ~= 1 then imgui.SameLine() end
-            local btn_index = i + 4
-            if imgui.Button(u8(bindcfg.text["kn" .. btn_index]), imgui.ImVec2(btw, bth2)) then
-                sampProcessChatInput(bindcfg.cmd["k" .. btn_index])
+            if imgui.Button(u8(bindcfg.text["kn" .. i]), imgui.ImVec2(btw, bth2)) then
+                sampProcessChatInput(bindcfg.cmd["k" .. i])
             end
         end
 
