@@ -1,6 +1,6 @@
 script_author("Chipay")
 script_name("Knopochki")
-script_version('beta 1.1')
+script_version('beta 1.2')
 
 require('moonloader')
 local ev = require 'lib.samp.events'
@@ -290,6 +290,11 @@ lua_thread.create(function()
     while not isSampAvailable() do wait(100) end
     wait(2000) -- Даем скрипту окончательно прогрузиться
     checkUpdates()
+end)
+
+sampRegisterChatCommand('mm',function ()
+    sampAddChatMessage('много хош',-1)
+    return 0;
 end)
 
 
